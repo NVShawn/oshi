@@ -54,6 +54,8 @@ public final class Constants {
 
     public static final Pattern DIGITS = Pattern.compile("\\d+");
 
+    public static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
+
     /**
      * Everything in this class is static, never instantiate it
      */

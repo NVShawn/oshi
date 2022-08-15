@@ -23,6 +23,7 @@
  */
 package oshi.hardware;
 
+import static oshi.util.Constants.OSHI_ARCHITECTURE_PROPERTIES;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
@@ -593,8 +594,6 @@ public interface CentralProcessor {
      */
     @Immutable
     final class ProcessorIdentifier {
-        private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
-
         // Provided in constructor
         private final String cpuVendor;
         private final String cpuName;
@@ -665,7 +664,10 @@ public interface CentralProcessor {
          * @return Processor name.
          */
         public String getName() {
-            return cpuName;
+            if (!Util.isBlank(cpuName)) {
+                return cpuName;
+            }
+            return String.join(" ", cpuVendor, cpuModel);
         }
 
         /**

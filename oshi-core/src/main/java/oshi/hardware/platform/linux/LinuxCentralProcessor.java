@@ -24,6 +24,7 @@
 package oshi.hardware.platform.linux;
 
 import static oshi.software.os.linux.LinuxOperatingSystem.HAS_UDEV;
+import static oshi.util.Constants.OSHI_ARCHITECTURE_PROPERTIES;
 import static oshi.util.platform.linux.ProcPath.CPUINFO;
 
 import java.io.File;
@@ -38,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -155,10 +157,21 @@ final class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         processorID = getProcessorID(cpuVendor, cpuStepping, cpuModel, cpuFamily, flags);
         if (cpuVendor.startsWith("0x")) {
-            List<String> lscpu = ExecutingCommand.runNative("lscpu");
-            for (String line : lscpu) {
-                if (line.startsWith("Architecture:")) {
-                    cpuVendor = line.replace("Architecture:", "").trim();
+            Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
+            String armImplKey = "arm.impl." + cpuVendor.toLowerCase().trim();
+            if (archProps.containsKey(armImplKey)) {
+                cpuVendor = archProps.getProperty(armImplKey);
+                String armModelKey = "arm." + cpuModel.toLowerCase().trim();
+                if (archProps.containsKey(armModelKey)) {
+                    cpuModel = archProps.getProperty(armModelKey);
+                }
+            }
+            if (cpuVendor.startsWith("0x")) {
+                List<String> lscpu = ExecutingCommand.runNative("lscpu");
+                for (String line : lscpu) {
+                    if (line.startsWith("Architecture:")) {
+                        cpuVendor = line.replace("Architecture:", "").trim();
+                    }
                 }
             }
         }
